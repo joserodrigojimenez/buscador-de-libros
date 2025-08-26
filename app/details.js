@@ -1,47 +1,57 @@
 import React from "react";
-import { View, Text, Image, Button, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, Text, Image, ScrollView, StyleSheet } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Details() {
-  const { book } = useLocalSearchParams();
-  const router = useRouter();
-  const data = JSON.parse(book);
+  const { bookData } = useLocalSearchParams();
+  const data = JSON.parse(bookData || "{}");
 
-  const addToFavorites = async () => {
-    try {
-      let favorites = await AsyncStorage.getItem("favorites");
-      favorites = favorites ? JSON.parse(favorites) : [];
-      favorites.push(data);
-      await AsyncStorage.setItem("favorites", JSON.stringify(favorites));
-      alert("Libro agregado a Favoritos ✅");
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (!data?.volumeInfo) {
+    return (
+      <View style={styles.center}>
+        <Text>No se encontraron detalles.</Text>
+      </View>
+    );
+  }
+
+  const { title, authors, description, imageLinks, publishedDate } = data.volumeInfo;
 
   return (
-    <ScrollView style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>
-        {data.volumeInfo.title}
-      </Text>
-      <Image
-        source={{ uri: data.volumeInfo.imageLinks?.thumbnail }}
-        style={{ width: 120, height: 180, marginBottom: 20 }}
-      />
-      <Text>📖 Autor: {data.volumeInfo.authors?.join(", ")}</Text>
-      <Text>📅 Publicado: {data.volumeInfo.publishedDate}</Text>
-      <Text style={{ marginTop: 10 }}>
-        {data.volumeInfo.description || "Sin descripción disponible"}
-      </Text>
-
-      <View style={{ marginTop: 20 }}>
-        <Button title="Añadir a Favoritos" onPress={addToFavorites} />
-        <Button
-          title="Ver Favoritos"
-          onPress={() => router.push("/favorites")}
+    <LinearGradient colors={["#2575fc", "#6a11cb"]} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Image
+          source={{
+            uri: imageLinks?.thumbnail || "https://via.placeholder.com/200x300.png?text=No+Image",
+          }}
+          style={styles.image}
         />
-      </View>
-    </ScrollView>
+        <Text style={styles.title}>{title}</Text>
+        {authors && <Text style={styles.authors}>Por: {authors.join(", ")}</Text>}
+        {publishedDate && <Text style={styles.date}>Publicado: {publishedDate}</Text>}
+        {description && <Text style={styles.description}>{description}</Text>}
+      </ScrollView>
+    </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { padding: 16, alignItems: "center" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  image: {
+    width: 200,
+    height: 300,
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  title: { fontSize: 24, fontWeight: "bold", color: "#fff", textAlign: "center" },
+  authors: { fontSize: 16, color: "#ddd", marginTop: 4, textAlign: "center" },
+  date: { fontSize: 14, color: "#ccc", marginBottom: 12 },
+  description: { fontSize: 14, color: "#fff", textAlign: "justify" },
+});

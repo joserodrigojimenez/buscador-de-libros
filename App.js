@@ -1,20 +1,18 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import SearchScreen from "./screens/SearchScreen";
-import DetailsScreen from "./screens/DetailsScreen";
-import FavoritesScreen from "./screens/FavoritesScreen";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './screens/HomeScreen';
+import BookDetails from './screens/BookDetails';
 
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Buscar" component={SearchScreen} />
-        <Tab.Screen name="Detalles" component={DetailsScreen} />
-        <Tab.Screen name="Favoritos" component={FavoritesScreen} />
-      </Tab.Navigator>
+      <Stack.Navigator>
+        <Stack.Screen name="Inicio" component={HomeScreen} />
+        <Stack.Screen name="DetallesDelLibro" component={BookDetails} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
